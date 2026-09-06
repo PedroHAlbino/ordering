@@ -2,13 +2,20 @@ package com.albinos.ordering.domain.entity;
 
 
 import com.albinos.ordering.domain.exception.CustomerArchivedException;
-import com.albinos.ordering.domain.utility.IdGenerator;
+import com.albinos.ordering.domain.valueobject.Address;
+import com.albinos.ordering.domain.valueobject.BirthDate;
+import com.albinos.ordering.domain.valueobject.CustomerId;
+import com.albinos.ordering.domain.valueobject.Document;
+import com.albinos.ordering.domain.valueobject.Email;
+import com.albinos.ordering.domain.valueobject.FullName;
+import com.albinos.ordering.domain.valueobject.LoyaltyPoints;
+import com.albinos.ordering.domain.valueobject.Phone;
+import com.albinos.ordering.domain.valueobject.ZipCode;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 class CustomerTest {
 
@@ -16,56 +23,27 @@ class CustomerTest {
     void given_invalidEmail_whenTryCreateCustomer_shouldGenerateException(){
 
         Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> new Customer(
-                        IdGenerator.generateTimeBasedUUID(),
-                        "invalid",
-                        LocalDate.of(1991,7,5),
-                        "Jhon Doe",
-                        "255-08-0578",
-                        "478-256-2504",
-                        false,
-                        OffsetDateTime.now()
-                ));
+                .isThrownBy(() -> new Email("invalid"));
     }
 
     @Test
     void given_invalidEmail_whenTryUpdateCustomerEmail_shouldGenerateException(){
-        Customer customer = new Customer(
-                IdGenerator.generateTimeBasedUUID(),
-                "jhon@email.com",
-                LocalDate.of(1991,7,5),
-                "Jhon Doe",
-                "255-08-0578",
-                "478-256-2504",
-                false,
-                OffsetDateTime.now()
-        );
+        Customer customer = newValidCustomer();
         Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> {
-                    customer.changeEmail("invalid");
-                });
+                .isThrownBy(() -> customer.changeEmail(new Email("invalid")));
     }
 
     @Test
     void given_unarchivedCustomer_whenArchive_shouldAnomize(){
-        Customer customer = new Customer(
-                IdGenerator.generateTimeBasedUUID(),
-                "jhon@email.com",
-                LocalDate.of(1991,7,5),
-                "Jhon Doe",
-                "255-08-0578",
-                "478-256-2504",
-                false,
-                OffsetDateTime.now()
-        );
+        Customer customer = newValidCustomer();
 
         customer.archive();
 
         Assertions.assertWith(customer,
-            c-> Assertions.assertThat(c.fullName()).isEqualTo("Anonymous"),
-            c->Assertions.assertThat(c.email()).isNotEqualTo("jhon@email.com"),
-            c->Assertions.assertThat(c.phone()).isEqualTo("000-000-0000"),
-            c->Assertions.assertThat(c.document()).isEqualTo("000-00-0000"),
+            c-> Assertions.assertThat(c.fullName()).isEqualTo(new FullName("Anonymous", "Anonymous")),
+            c->Assertions.assertThat(c.email()).isNotEqualTo(new Email("jhon@email.com")),
+            c->Assertions.assertThat(c.phone()).isEqualTo(new Phone("000-000-0000")),
+            c->Assertions.assertThat(c.document()).isEqualTo(new Document("000-00-0000")),
                 c->Assertions.assertThat(c.birthDate()).isNull()
         );
 
@@ -82,46 +60,65 @@ class CustomerTest {
     @Test
     void given_futureBirthDate_whenTryCreateCustomer_shouldGenerateException(){
         Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> new Customer(
-                        IdGenerator.generateTimeBasedUUID(),
-                        "jhon@email.com",
-                        LocalDate.now().plusDays(1),
-                        "Jhon Doe",
-                        "255-08-0578",
-                        "478-256-2504",
-                        false,
-                        OffsetDateTime.now()
-                ));
+                .isThrownBy(() -> new BirthDate(LocalDate.now().plusDays(1)));
     }
 
     @Test
-    void given_blankFullName_whenTryCreateCustomer_shouldGenerateException(){
+    void given_nullBirthDate_whenTryCreateBirthDate_shouldGenerateException(){
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> new BirthDate(null));
+    }
+
+    @Test
+    void given_pastBirthDate_whenAge_shouldCalculateCorrectly(){
+        BirthDate birthDate = new BirthDate(LocalDate.now().minusYears(30));
+
+        Assertions.assertThat(birthDate.age()).isEqualTo(30);
+    }
+
+    @Test
+    void given_blankDocument_whenTryCreateDocument_shouldGenerateException(){
         Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> new Customer(
-                        IdGenerator.generateTimeBasedUUID(),
-                        "jhon@email.com",
-                        LocalDate.of(1991,7,5),
-                        "   ",
-                        "255-08-0578",
-                        "478-256-2504",
-                        false,
-                        OffsetDateTime.now()
-                ));
+                .isThrownBy(() -> new Document("   "));
+    }
+
+    @Test
+    void given_nullDocument_whenTryCreateDocument_shouldGenerateException(){
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> new Document(null));
+    }
+
+    @Test
+    void given_blankPhone_whenTryCreatePhone_shouldGenerateException(){
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new Phone("   "));
+    }
+
+    @Test
+    void given_nullPhone_whenTryCreatePhone_shouldGenerateException(){
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> new Phone(null));
+    }
+
+    @Test
+    void given_blankFirstName_whenTryCreateFullName_shouldGenerateException(){
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new FullName("   ", "Doe"));
     }
 
     @Test
     void given_nullFullName_whenTryCreateCustomer_shouldGenerateException(){
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(() -> new Customer(
-                        IdGenerator.generateTimeBasedUUID(),
-                        "jhon@email.com",
-                        LocalDate.of(1991,7,5),
-                        null,
-                        "255-08-0578",
-                        "478-256-2504",
-                        false,
-                        OffsetDateTime.now()
-                ));
+                .isThrownBy(() -> Customer.brandNew()
+                        .id(new CustomerId())
+                        .email(new Email("jhon@email.com"))
+                        .birthDate(new BirthDate(LocalDate.of(1991,7,5)))
+                        .fullName(null)
+                        .document(new Document("255-08-0578"))
+                        .phone(new Phone("478-256-2504"))
+                        .promotionNotificationsAllowed(false)
+                        .address(newValidAddress())
+                        .build());
     }
 
     @Test
@@ -130,7 +127,7 @@ class CustomerTest {
 
         customer.addLoayltyPoints(10);
 
-        Assertions.assertThat(customer.loyaltyPoints()).isEqualTo(10);
+        Assertions.assertThat(customer.loyaltyPoints()).isEqualTo(new LoyaltyPoints(10));
     }
 
     @Test
@@ -154,7 +151,7 @@ class CustomerTest {
         Customer customer = newArchivedCustomer();
 
         Assertions.assertThatExceptionOfType(CustomerArchivedException.class)
-                .isThrownBy(() -> customer.changeName("Other Name"));
+                .isThrownBy(() -> customer.changeName(new FullName("Other", "Name")));
     }
 
     @Test
@@ -162,7 +159,7 @@ class CustomerTest {
         Customer customer = newArchivedCustomer();
 
         Assertions.assertThatExceptionOfType(CustomerArchivedException.class)
-                .isThrownBy(() -> customer.changePhone("111-111-1111"));
+                .isThrownBy(() -> customer.changePhone(new Phone("111-111-1111")));
     }
 
     @Test
@@ -170,7 +167,7 @@ class CustomerTest {
         Customer customer = newArchivedCustomer();
 
         Assertions.assertThatExceptionOfType(CustomerArchivedException.class)
-                .isThrownBy(() -> customer.changeEmail("other@email.com"));
+                .isThrownBy(() -> customer.changeEmail(new Email("other@email.com")));
     }
 
     @Test
@@ -183,58 +180,71 @@ class CustomerTest {
 
     @Test
     void given_twoCustomersWithSameId_whenEquals_shouldBeEqual(){
-        UUID id = IdGenerator.generateTimeBasedUUID();
-        Customer customer1 = new Customer(
-                id,
-                "jhon@email.com",
-                LocalDate.of(1991,7,5),
-                "Jhon Doe",
-                "255-08-0578",
-                "478-256-2504",
-                false,
-                OffsetDateTime.now()
-        );
-        Customer customer2 = new Customer(
-                id,
-                "other@email.com",
-                LocalDate.of(1980,1,1),
-                "Other Name",
-                "111-111-1111",
-                "111-11-1111",
-                true,
-                OffsetDateTime.now()
-        );
+        CustomerId id = new CustomerId();
+        Customer customer1 = Customer.brandNew()
+                .id(id)
+                .email(new Email("jhon@email.com"))
+                .birthDate(new BirthDate(LocalDate.of(1991,7,5)))
+                .fullName(new FullName("Jhon", "Doe"))
+                .document(new Document("255-08-0578"))
+                .phone(new Phone("478-256-2504"))
+                .promotionNotificationsAllowed(false)
+                .address(newValidAddress())
+                .build();
+        Customer customer2 = Customer.brandNew()
+                .id(id)
+                .email(new Email("other@email.com"))
+                .birthDate(new BirthDate(LocalDate.of(1980,1,1)))
+                .fullName(new FullName("Other", "Name"))
+                .document(new Document("111-111-1111"))
+                .phone(new Phone("111-11-1111"))
+                .promotionNotificationsAllowed(true)
+                .address(newValidAddress())
+                .build();
 
         Assertions.assertThat(customer1).isEqualTo(customer2);
         Assertions.assertThat(customer1.hashCode()).isEqualTo(customer2.hashCode());
     }
 
     private Customer newValidCustomer(){
-        return new Customer(
-                IdGenerator.generateTimeBasedUUID(),
-                "jhon@email.com",
-                LocalDate.of(1991,7,5),
-                "Jhon Doe",
-                "255-08-0578",
-                "478-256-2504",
-                false,
-                OffsetDateTime.now()
-        );
+        return Customer.brandNew()
+                .id(new CustomerId())
+                .email(new Email("jhon@email.com"))
+                .birthDate(new BirthDate(LocalDate.of(1991,7,5)))
+                .fullName(new FullName("Jhon", "Doe"))
+                .document(new Document("255-08-0578"))
+                .phone(new Phone("478-256-2504"))
+                .promotionNotificationsAllowed(false)
+                .address(newValidAddress())
+                .build();
     }
 
     private Customer newArchivedCustomer(){
-        return new Customer(
-                IdGenerator.generateTimeBasedUUID(),
-                "Anonymous",
-                null,
-                "jhon@email.com",
-                "000-000-0000",
-                "000-00-0000",
-                false,
-                true,
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-                10
+        return Customer.existing()
+                .id(new CustomerId())
+                .fullName(new FullName("Anonymous", "Anonymous"))
+                .birthDate(null)
+                .email(new Email("jhon@email.com"))
+                .phone(new Phone("000-000-0000"))
+                .document(new Document("000-00-0000"))
+                .promotionNotificationsAllowed(false)
+                .archived(true)
+                .registeredAt(OffsetDateTime.now())
+                .archivedAt(OffsetDateTime.now())
+                .loyaltyPoints(new LoyaltyPoints(10))
+                .address(newValidAddress())
+                .build();
+    }
+
+    private Address newValidAddress(){
+        return new Address(
+                "Main Street",
+                "102",
+                "Apt 1",
+                "Downtown",
+                "Springfield",
+                "IL",
+                new ZipCode("12345")
         );
     }
 

@@ -2,11 +2,23 @@ package com.albinos.ordering.domain.validator;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+import java.io.ObjectStreamClass;
 import java.util.Objects;
 
 public class FielValidations {
 
     private FielValidations(){}
+
+    public static void requiresNonBlank(String value){
+        requiresNonBlank(value, "");
+    }
+
+    public static void requiresNonBlank(String value, String errorMessage){
+        Objects.requireNonNull(value);
+        if(value.isBlank()){
+            throw new IllegalArgumentException();
+        }
+    }
 
     public static void requiresValidEmail(String email){
         requiresValidEmail(email, null);
