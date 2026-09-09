@@ -4,7 +4,7 @@ package com.albinos.ordering.domain.entity;
 import com.albinos.ordering.domain.exception.CustomerArchivedException;
 import com.albinos.ordering.domain.valueobject.Address;
 import com.albinos.ordering.domain.valueobject.BirthDate;
-import com.albinos.ordering.domain.valueobject.CustomerId;
+import com.albinos.ordering.domain.valueobject.id.CustomerId;
 import com.albinos.ordering.domain.valueobject.Document;
 import com.albinos.ordering.domain.valueobject.Email;
 import com.albinos.ordering.domain.valueobject.FullName;

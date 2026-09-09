@@ -2,6 +2,7 @@ package com.albinos.ordering.domain.entity;
 
 import com.albinos.ordering.domain.exception.CustomerArchivedException;
 import com.albinos.ordering.domain.valueobject.*;
+import com.albinos.ordering.domain.valueobject.id.CustomerId;
 import lombok.Builder;
 
 import java.time.OffsetDateTime;
