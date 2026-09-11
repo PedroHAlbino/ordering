@@ -1,5 +1,7 @@
 package com.albinos.ordering.domain.entity;
 
+import com.albinos.ordering.domain.exception.OrderInvalidShippingDeliveryDateException;
+import com.albinos.ordering.domain.exception.OrderStatusCannotBeChangedException;
 import com.albinos.ordering.domain.valueobject.*;
 import com.albinos.ordering.domain.valueobject.id.CustomerId;
 import com.albinos.ordering.domain.valueobject.id.OrderId;
@@ -100,6 +102,23 @@ public class Order {
          this.recalculateTotals();
     }
 
+    private void changeStatus(OrderStatus newStatus) {
+        Objects.requireNonNull(newStatus);
+        if (this.status().canNotChangeTo(newStatus)){
+            throw new OrderStatusCannotBeChangedException(this.id(), this.status(), newStatus);
+        }
+
+        this.setStatus(newStatus);
+    }
+
+    public boolean isDraft(){
+        return OrderStatus.DRAFT.equals(this.status);
+    }
+
+    public boolean isPlaced(){
+        return  OrderStatus.PLACED.equals(this.status);
+    }
+
     public OrderId id() {
         return id;
     }
@@ -179,6 +198,35 @@ public class Order {
         this.setTotalAmount(new Money(totalAmount));
         this.setTotalItems(new Quantity(totalItemsQuantity));
 
+    }
+
+    public void place(){
+        //TODO Business rules!
+        this.changeStatus(OrderStatus.PLACED);
+    }
+
+    public void changePaymentMethod(PaymentMethod paymentMethod){
+        Objects.requireNonNull(paymentMethod);
+        this.setPaymentMethod(paymentMethod);
+    }
+
+    public void changeBilling(BillingInfo billing){
+        Objects.requireNonNull(billing);
+        this.setBilling(billing);
+    }
+
+    public void changeShipping(ShippingInfo shippin, Money shippingCost, LocalDate expectedDeliveryDate){
+        Objects.requireNonNull(shippin);
+        Objects.requireNonNull(shippingCost);
+        Objects.requireNonNull(expectedDeliveryDate);
+
+        if(expectedDeliveryDate.isBefore(LocalDate.now())){
+            throw new OrderInvalidShippingDeliveryDateException(this.id());
+        }
+
+        this.setShippin(shippin);
+        this.setShippingCost(shippingCost);
+        this.setExpectedDeliveryDate(expectedDeliveryDate);
     }
 
     private void setId(OrderId id) {
