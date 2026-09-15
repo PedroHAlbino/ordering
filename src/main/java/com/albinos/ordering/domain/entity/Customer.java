@@ -43,7 +43,7 @@ public class Customer {
         );
 
     }
-    @Builder(builderClassName = "BrandExistingCustomerBuild", builderMethodName = "existing")
+    @Builder(builderClassName = "ExistingCustomerBuild", builderMethodName = "existing")
     private static Customer newExistingCustomer(CustomerId id, FullName fullName, BirthDate birthDate, Email email,
                                     Phone phone, Document document, Boolean promotionNotificationsAllowed,
                                     Boolean archived, OffsetDateTime registeredAt, OffsetDateTime archivedAt,

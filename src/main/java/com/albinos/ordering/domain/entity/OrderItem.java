@@ -36,7 +36,7 @@ public class OrderItem {
     }
 
     @Builder(builderClassName = "BrandNewOrderItemBuilder", builderMethodName = "brandNew")
-    private static OrderItem createBrandNew(OrderId orderId, ProductId productId,
+    static OrderItem createBrandNew(OrderId orderId, ProductId productId,
                      ProductName productName, Money price, Quantity quantity) {
         OrderItem orderItem = new OrderItem(
                 new OrderItemId(),

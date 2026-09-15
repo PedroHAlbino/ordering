@@ -9,7 +9,6 @@ import com.albinos.ordering.domain.valueobject.id.ProductId;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.Or;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -89,55 +88,24 @@ class OrderTest {
 
     @Test
     public void givenDraftOrder_whenPlace_shouldChangeToPlaced() {
-        Order order = givenReadyToPlaceOrder();
+        Order order = OrderTestDataBuilder.anOrder().build();
         order.place();
         Assertions.assertThat(order.isPlaced()).isTrue();
     }
 
     @Test
-    public void givenPlacedOrder_whenTryToPlace_shouldGenerateException() {
-        Order order = givenReadyToPlaceOrder();
-        order.place();
-        Assertions.assertThatExceptionOfType(OrderStatusCannotBeChangedException.class)
-                .isThrownBy(order::place);
+    public void givenPlacedOrder_whenMarkAsPaid_shouldChangeToPaid() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        order.markAsPaid();
+        Assertions.assertThat(order.isPaid()).isTrue();
+        Assertions.assertThat(order.paidAt()).isNotNull();
     }
 
-    private Order givenReadyToPlaceOrder() {
-        Address address = Address.builder()
-                .street("Bourbon Street")
-                .number("1234")
-                .neighborhood("North Ville")
-                .complement("apt. 11")
-                .city("Montfort")
-                .state("South Carolina")
-                .zipCode(new ZipCode("79911")).build();
-
-        BillingInfo billingInfo = BillingInfo.builder()
-                .address(address)
-                .document(new Document("225-09-1992"))
-                .phone(new Phone("123-111-9911"))
-                .fullName(new FullName("John", "Doe"))
-                .build();
-
-        ShippingInfo shippingInfo = ShippingInfo.builder()
-                .address(address)
-                .fullName(new FullName("John", "Doe"))
-                .document(new Document("112-33-2321"))
-                .phone(new Phone("111-441-1244"))
-                .build();
-
-        Order order = Order.draft(new CustomerId());
-        order.addItem(
-                new ProductId(),
-                new ProductName("Mouse pad"),
-                new Money("100"),
-                new Quantity(1)
-        );
-        order.changeBilling(billingInfo);
-        order.changeShipping(shippingInfo, Money.ZERO, LocalDate.now().plusDays(1));
-        order.changePaymentMethod(PaymentMethod.CREDIT_CARD);
-
-        return order;
+    @Test
+    public void givenPlacedOrder_whenTryToPlace_shouldGenerateException() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        Assertions.assertThatExceptionOfType(OrderStatusCannotBeChangedException.class)
+                .isThrownBy(order::place);
     }
 
     @Test
@@ -236,6 +204,7 @@ class OrderTest {
         Assertions.assertThatExceptionOfType(OrderInvalidShippingDeliveryDateException.class)
                 .isThrownBy(()-> order.changeShipping(shippingInfo, shippingCost, expectedDeliveryDate));
     }
+
 
 
 }
