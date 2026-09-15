@@ -1,5 +1,6 @@
 package com.albinos.ordering.domain.entity;
 
+import com.albinos.ordering.domain.exception.OrderCannotBePlacedException;
 import com.albinos.ordering.domain.exception.OrderInvalidShippingDeliveryDateException;
 import com.albinos.ordering.domain.exception.OrderStatusCannotBeChangedException;
 import com.albinos.ordering.domain.valueobject.*;
@@ -201,7 +202,17 @@ public class Order {
     }
 
     public void place(){
-        //TODO Business rules!
+        Objects.requireNonNull(this.shippin());
+        Objects.requireNonNull(this.billing());
+        Objects.requireNonNull(this.expectedDeliveryDate());
+        Objects.requireNonNull(this.shippingCost());
+        Objects.requireNonNull(this.paymentMethod());
+        Objects.requireNonNull(this.items());
+
+        if(this.items().isEmpty()){
+            throw new OrderCannotBePlacedException(this.id());
+        }
+        this.setPlacedAt(OffsetDateTime.now());
         this.changeStatus(OrderStatus.PLACED);
     }
 
