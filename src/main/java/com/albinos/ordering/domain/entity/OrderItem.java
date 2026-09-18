@@ -1,6 +1,7 @@
 package com.albinos.ordering.domain.entity;
 
 import com.albinos.ordering.domain.valueobject.Money;
+import com.albinos.ordering.domain.valueobject.Product;
 import com.albinos.ordering.domain.valueobject.ProductName;
 import com.albinos.ordering.domain.valueobject.Quantity;
 import com.albinos.ordering.domain.valueobject.id.OrderId;
@@ -36,14 +37,18 @@ public class OrderItem {
     }
 
     @Builder(builderClassName = "BrandNewOrderItemBuilder", builderMethodName = "brandNew")
-    static OrderItem createBrandNew(OrderId orderId, ProductId productId,
-                     ProductName productName, Money price, Quantity quantity) {
+    static OrderItem createBrandNew(OrderId orderId,
+                                    Product product,
+                                    Quantity quantity) {
+        Objects.requireNonNull(product);
+        Objects.requireNonNull(orderId);
+        Objects.requireNonNull(quantity);
         OrderItem orderItem = new OrderItem(
                 new OrderItemId(),
                 orderId,
-                productId,
-                productName,
-                price,
+                product.id(),
+                product.name(),
+                product.price(),
                 quantity,
                 Money.ZERO
         );
@@ -130,5 +135,11 @@ public class OrderItem {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    void changeQuantity(Quantity quantity) {
+        Objects.requireNonNull(quantity);
+        this.setQuantity(quantity);
+        this.recalculateTotals();
     }
 }

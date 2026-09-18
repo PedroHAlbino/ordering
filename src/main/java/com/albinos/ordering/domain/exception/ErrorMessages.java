@@ -38,4 +38,10 @@ public class ErrorMessages {
 
     public static final String ERROR_ORDER_CANNOT_BE_PLACED_HAS_NO_PAYMENT_METHOD
             = "Order %s cannot be placed, it has no payment method";
+    public static final String ERROR_ORDER_DOES_NOT_CONTAIN_ITEM = "Order %s does not contain item %s";
+    public static final String ERROR_PRODUCT_IS_OUT_OF_STOCK = "Order %s";
+    public static final String ERROR_ORDER_CANNOT_BE_EDITED = "Order %s with status %s cannot be edited";
+    public static final String ERROR_SHOPPING_CART_DOES_NOT_CONTAIN_ITEM = "ShoppingCart %s does not contain item %s";
+    public static final String ERROR_SHOPPING_CART_ITEM_INCOMPATIBLE_PRODUCT
+            = "ShoppingCartItem %s is not compatible with product %s";
 }
