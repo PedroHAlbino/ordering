@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
@@ -42,7 +43,7 @@ public class OrderPersistenceEntity {
 
     @CreatedBy
     private UUID createdByUserId;
-    @LastModifiedBy
+    @LastModifiedDate
     private OffsetDateTime lastModifiedAt;
     @LastModifiedBy
     private UUID lastModifiedByUserId;
