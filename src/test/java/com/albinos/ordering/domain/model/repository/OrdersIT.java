@@ -3,6 +3,8 @@ package com.albinos.ordering.domain.model.repository;
 import com.albinos.ordering.domain.model.entity.Order;
 import com.albinos.ordering.domain.model.entity.OrderTestDataBuilder;
 import com.albinos.ordering.domain.model.valueobject.id.OrderId;
+import com.albinos.ordering.infrastructure.persistence.assembler.OrderPersistenceEntityAssembler;
+import com.albinos.ordering.infrastructure.persistence.disassembler.OrderPersistenceEntityDisassembler;
 import com.albinos.ordering.infrastructure.persistence.provider.OrdersPersistenceProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(OrdersPersistenceProvider.class)
+@Import({OrdersPersistenceProvider.class,
+        OrderPersistenceEntityAssembler.class,
+        OrderPersistenceEntityDisassembler.class
+    })
 class OrdersIT {
 
     private Orders orders;
