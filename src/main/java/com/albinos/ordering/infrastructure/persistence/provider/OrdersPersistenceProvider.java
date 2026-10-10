@@ -7,6 +7,7 @@ import com.albinos.ordering.infrastructure.persistence.assembler.OrderPersistenc
 import com.albinos.ordering.infrastructure.persistence.disassembler.OrderPersistenceEntityDisassembler;
 import com.albinos.ordering.infrastructure.persistence.entity.OrderPersistenceEntity;
 import com.albinos.ordering.infrastructure.persistence.repository.OrderPersistenceEntityRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,8 @@ public class OrdersPersistenceProvider implements Orders{
     private final OrderPersistenceEntityRepository persistenceRepository;
     private final OrderPersistenceEntityAssembler assembler;
     private final OrderPersistenceEntityDisassembler disassembler;
+
+    private final EntityManager entityManager;
 
     @Override
     public Optional<Order> ofId(OrderId orderId) {
@@ -54,7 +57,9 @@ public class OrdersPersistenceProvider implements Orders{
 
     private void update(Order aggregateRoot, OrderPersistenceEntity persistenceEntity){
         persistenceEntity = assembler.merge(persistenceEntity, aggregateRoot);
-        persistenceRepository.saveAndFlush(persistenceEntity);
+        entityManager.detach(persistenceEntity);
+        persistenceEntity = persistenceRepository.saveAndFlush(persistenceEntity);
+        aggregateRoot.setVersion(persistenceEntity.getVersion());
     }
 
     @Override
